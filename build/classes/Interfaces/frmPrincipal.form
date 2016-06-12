@@ -139,12 +139,18 @@
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Iniciar Servidor"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnServidorIniciarActionPerformed"/>
+                  </Events>
                 </Component>
                 <Component class="javax.swing.JButton" name="btnServidorParar">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Parar Servidor"/>
                     <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnServidorPararActionPerformed"/>
+                  </Events>
                 </Component>
               </SubComponents>
             </Container>

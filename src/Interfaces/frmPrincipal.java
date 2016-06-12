@@ -1,19 +1,16 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Interfaces;
 
-/**
- *
- * @author Rael
- */
+import Servidor.ServidorSocket;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+
 public class frmPrincipal extends javax.swing.JFrame {
 
-    /**
-     * Creates new form frmPrincipal
-     */
+    private ServidorSocket servidorSocket;    
+    private Thread servidor;
+    
     public frmPrincipal() {
         initComponents();
     }
@@ -59,9 +56,19 @@ public class frmPrincipal extends javax.swing.JFrame {
         lblServidorPorta.setText("Porta:");
 
         btnServidorIniciar.setText("Iniciar Servidor");
+        btnServidorIniciar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnServidorIniciarActionPerformed(evt);
+            }
+        });
 
         btnServidorParar.setText("Parar Servidor");
         btnServidorParar.setEnabled(false);
+        btnServidorParar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnServidorPararActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout panelConfigServidorLayout = new javax.swing.GroupLayout(panelConfigServidor);
         panelConfigServidor.setLayout(panelConfigServidorLayout);
@@ -140,6 +147,46 @@ public class frmPrincipal extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     /**
+     * Inicia o servidor.
+     * @param evt 
+     */
+    private void btnServidorIniciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnServidorIniciarActionPerformed
+        
+        if (Integer.parseInt(txtServidorPorta.getText()) < 1024) {
+            JOptionPane.showMessageDialog(panelCliente, "A porta deve ser maior ou igual a 1024.", "AVISO", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        this.servidorSocket = new ServidorSocket(Integer.parseInt(txtServidorPorta.getText()), txtServidorLog);
+        this.servidor = new Thread(this.servidorSocket);
+        servidor.start();
+        this.IniciarPararServidor(true);
+    }//GEN-LAST:event_btnServidorIniciarActionPerformed
+
+    private void btnServidorPararActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnServidorPararActionPerformed
+        try {
+            this.servidorSocket.PararServidor();
+        } catch (IOException ex) {
+            Logger.getLogger(frmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        IniciarPararServidor(false);
+    }//GEN-LAST:event_btnServidorPararActionPerformed
+
+    /**
+     * Ativa/Desativa os botões de configuração do servidor.
+     * @param iniciar 
+     */
+    private void IniciarPararServidor(boolean iniciar) {
+        if (iniciar) {
+            btnServidorIniciar.setEnabled(false);
+            btnServidorParar.setEnabled(true);
+        } else {
+            btnServidorIniciar.setEnabled(true);
+            btnServidorParar.setEnabled(false);
+        }
+    }
+    
+    /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
@@ -173,7 +220,7 @@ public class frmPrincipal extends javax.swing.JFrame {
             }
         });
     }
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTabbedPane Servidor;
     private javax.swing.JButton btnServidorIniciar;
