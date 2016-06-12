@@ -30,6 +30,14 @@ public class frmPrincipal extends javax.swing.JFrame {
         Servidor = new javax.swing.JTabbedPane();
         panelCliente = new javax.swing.JPanel();
         panelServidor = new javax.swing.JPanel();
+        panelConfigServidor = new javax.swing.JPanel();
+        lblServidorPorta = new javax.swing.JLabel();
+        txtServidorPorta = new javax.swing.JTextField();
+        btnServidorIniciar = new javax.swing.JButton();
+        btnServidorParar = new javax.swing.JButton();
+        panelServidorLog = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        txtServidorLog = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -46,15 +54,73 @@ public class frmPrincipal extends javax.swing.JFrame {
 
         Servidor.addTab("Cliente", panelCliente);
 
+        panelConfigServidor.setBorder(javax.swing.BorderFactory.createTitledBorder("Configurar Servidor"));
+
+        lblServidorPorta.setText("Porta:");
+
+        btnServidorIniciar.setText("Iniciar Servidor");
+
+        btnServidorParar.setText("Parar Servidor");
+        btnServidorParar.setEnabled(false);
+
+        javax.swing.GroupLayout panelConfigServidorLayout = new javax.swing.GroupLayout(panelConfigServidor);
+        panelConfigServidor.setLayout(panelConfigServidorLayout);
+        panelConfigServidorLayout.setHorizontalGroup(
+            panelConfigServidorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelConfigServidorLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblServidorPorta)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txtServidorPorta, javax.swing.GroupLayout.DEFAULT_SIZE, 79, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addComponent(btnServidorIniciar, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnServidorParar, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        panelConfigServidorLayout.setVerticalGroup(
+            panelConfigServidorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelConfigServidorLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelConfigServidorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblServidorPorta)
+                    .addComponent(txtServidorPorta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnServidorIniciar)
+                    .addComponent(btnServidorParar))
+                .addContainerGap(19, Short.MAX_VALUE))
+        );
+
+        panelServidorLog.setBorder(javax.swing.BorderFactory.createTitledBorder("Log"));
+
+        txtServidorLog.setColumns(20);
+        txtServidorLog.setRows(5);
+        jScrollPane1.setViewportView(txtServidorLog);
+
+        javax.swing.GroupLayout panelServidorLogLayout = new javax.swing.GroupLayout(panelServidorLog);
+        panelServidorLog.setLayout(panelServidorLogLayout);
+        panelServidorLogLayout.setHorizontalGroup(
+            panelServidorLogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1)
+        );
+        panelServidorLogLayout.setVerticalGroup(
+            panelServidorLogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 156, Short.MAX_VALUE)
+        );
+
         javax.swing.GroupLayout panelServidorLayout = new javax.swing.GroupLayout(panelServidor);
         panelServidor.setLayout(panelServidorLayout);
         panelServidorLayout.setHorizontalGroup(
             panelServidorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 395, Short.MAX_VALUE)
+            .addComponent(panelConfigServidor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panelServidorLog, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         panelServidorLayout.setVerticalGroup(
             panelServidorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 272, Short.MAX_VALUE)
+            .addGroup(panelServidorLayout.createSequentialGroup()
+                .addComponent(panelConfigServidor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(panelServidorLog, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         Servidor.addTab("Servidor", panelServidor);
@@ -110,7 +176,15 @@ public class frmPrincipal extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTabbedPane Servidor;
+    private javax.swing.JButton btnServidorIniciar;
+    private javax.swing.JButton btnServidorParar;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblServidorPorta;
     private javax.swing.JPanel panelCliente;
+    private javax.swing.JPanel panelConfigServidor;
     private javax.swing.JPanel panelServidor;
+    private javax.swing.JPanel panelServidorLog;
+    private javax.swing.JTextArea txtServidorLog;
+    private javax.swing.JTextField txtServidorPorta;
     // End of variables declaration//GEN-END:variables
 }
