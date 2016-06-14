@@ -152,10 +152,18 @@ public class frmPrincipal extends javax.swing.JFrame {
      */
     private void btnServidorIniciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnServidorIniciarActionPerformed
         
-        if (Integer.parseInt(txtServidorPorta.getText()) < 1024) {
-            JOptionPane.showMessageDialog(panelCliente, "A porta deve ser maior ou igual a 1024.", "AVISO", JOptionPane.ERROR_MESSAGE);
+        try {
+            if (Integer.parseInt(txtServidorPorta.getText()) < 1024) {
+                JOptionPane.showMessageDialog(panelCliente, "A porta deve ser maior ou igual a 1024.", "AVISO", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(panelCliente, "Porta inválida.", "AVISO", JOptionPane.ERROR_MESSAGE);
+            txtServidorPorta.setText("");
+            txtServidorPorta.requestFocus();            
             return;
         }
+        
         
         this.servidorSocket = new ServidorSocket(Integer.parseInt(txtServidorPorta.getText()), txtServidorLog);
         this.servidor = new Thread(this.servidorSocket);
@@ -163,6 +171,10 @@ public class frmPrincipal extends javax.swing.JFrame {
         this.IniciarPararServidor(true);
     }//GEN-LAST:event_btnServidorIniciarActionPerformed
 
+    /**
+     * Para o servidor socket.
+     * @param evt 
+     */
     private void btnServidorPararActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnServidorPararActionPerformed
         try {
             this.servidorSocket.PararServidor();
