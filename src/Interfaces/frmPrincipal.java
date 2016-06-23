@@ -233,6 +233,14 @@ public class frmPrincipal extends javax.swing.JFrame {
         });
     }
     
+    /**
+     * Adiciona mensagem ao log do servidor
+     * @param mensagem 
+     */
+    public void AdicionarMensagem(String mensagem) {
+        this.txtServidorLog.setText(txtServidorLog.getText() + "\n" + mensagem);
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTabbedPane Servidor;
     private javax.swing.JButton btnServidorIniciar;
