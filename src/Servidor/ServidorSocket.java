@@ -14,6 +14,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -76,8 +77,10 @@ public class ServidorSocket implements Runnable {
                             this.AdicionarLog("Cliente conectado. IP:" + clienteIP);
                             break;
                         case LISTAR_SERVIDOR:
+                            this.GetListaArquivos();
                             break;
-                        case LISTAR_LOCAL:
+                        case CAMINHO:
+                            this.GetCaminhoServidor();
                             break;
                         case DOWNLOAD:
                             break;
@@ -171,95 +174,41 @@ public class ServidorSocket implements Runnable {
                 throw ex;
             }
         }
+    }    
+    
+    
+    private void GetCaminhoServidor() throws IOException {
+        ObjectOutputStream resposta = null;
+        try {
+            socketprojeto.SocketProjeto.AdicionarMensagem("Solicitando caminho do servidor ...");
+            String caminho = Util.GetCaminhoAtual();
+            resposta = new ObjectOutputStream(this.socket.getOutputStream());
+            resposta.writeUTF(caminho);
+            resposta.flush();
+            socketprojeto.SocketProjeto.AdicionarMensagem("Caminho do servidor enviado.");
+        } catch (Exception ex) {
+            socketprojeto.SocketProjeto.AdicionarMensagem("Erro ao retornar o caminho do servidor.");
+        } finally {
+            resposta.close();
+        }        
     }
     
-    private void Upload() throws IOException{
+    private void GetListaArquivos() throws IOException {
         ObjectOutputStream resposta = null;
-        InputStream inputStream = null;
-        int tamanhoPacote = 1024;
-        int tamanhoPacoteArquivo = 4096;
-        int bytesLidos;
-        int byteIndex;
-        ByteBuffer bytes;
-        ByteArrayOutputStream byteArrayOS;
-        String msg = "Solicitação de upload: ";
-        /*
-        if (!this.clienteLogado) {
-            this.AdicionarLog(msg + "Erro - cliente não autenticado");
-            return;
-        }
-        */
-        
         try {
-            // Responde à requisição para proceguir com o envio dos dados do arquivo
-            resposta = new ObjectOutputStream(this.socket.getOutputStream());
-            resposta.writeBoolean(true);
-            resposta.flush();
-            
-            // Recebe as informações do arquivo
-            bytes = new ByteBuffer(tamanhoPacote, tamanhoPacote);
-            byteArrayOS = new ByteArrayOutputStream();
-            bytesLidos = 0;
-            byteIndex = 0;
-            this.AdicionarLog(msg + "Recebendo informações do arquivo ...");
-            
-            inputStream = socket.getInputStream();                        
-            byte[] cbuffer = new byte[1024];
-            String s;
-            while ((bytesLidos = inputStream.read(cbuffer)) != -1) {
-                if (cbuffer[0] == 64 && cbuffer[1] == 65)
-                {
-                    break;
-                }
-                byteArrayOS.write(cbuffer, 0, bytesLidos);
-                byteArrayOS.flush();
-                cbuffer = new byte[1024];
-            }
-            byteArrayOS.close();
-            // Converte para a classe Arquivo
-            byte[] b = byteArrayOS.toByteArray();
-            Arquivo arquivo = (Arquivo)Util.getObjectFromByte(b);
-            
-            // Responde para o cliente enviar o arquivo
-            resposta = new ObjectOutputStream(this.socket.getOutputStream());
-            resposta.writeBoolean(true);
-            resposta.flush();
-            
-            
-            /*
-            // Recebe o arquivo
-            this.AdicionarLog(msg + "Recebendo arquivo ...");
-            // Salva arquivo em disco
-            byte[] cbuffer2 = new byte[tamanhoPacoteArquivo];
-            String s2;
-            byteArrayOS = new ByteArrayOutputStream();
-            while ((bytesLidos = inputStream.read(cbuffer2)) != -1) {
-                byteArrayOS.write(cbuffer2, 0, bytesLidos);
-                byteArrayOS.flush();
-            }
-            arquivo.setConteudo(byteArrayOS.toByteArray());
-            inputStream.close();
-            
-            // Salva arquivo na pasta de destino
-            FileOutputStream fos = new FileOutputStream(arquivo.getDiretorioDestino() + arquivo.getNome());
-            fos.write(arquivo.getConteudo());
-            fos.close();
+            socketprojeto.SocketProjeto.AdicionarMensagem("Solicitando lista de arquivos do servidor ...");
+            ArrayList<Arquivo> listaArquivos = Util.GetListaArquivos();
             
             resposta = new ObjectOutputStream(this.socket.getOutputStream());
-            resposta.writeBoolean(true);
+            resposta.writeObject(listaArquivos);
             resposta.flush();
-            resposta.close();
-            this.AdicionarLog(msg + "Arquivo recebido com sucesso.");
-            */
+            socketprojeto.SocketProjeto.AdicionarMensagem("Lista de arquivos do servidor enviado.");
             
-        } catch (IOException ex) {
-            this.AdicionarLog(msg + "Erro - " + ex.getMessage());
-            resposta.writeBoolean(false);
-            resposta.flush();
+        } catch (Exception ex) {
+            socketprojeto.SocketProjeto.AdicionarMensagem("Erro ao retornar a lista de arquivos do servidor.");
         } finally {
-            
             resposta.close();
-        }
+        }        
     }
     
 }

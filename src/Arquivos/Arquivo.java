@@ -26,6 +26,13 @@ public class Arquivo implements Serializable {
     private Date dataHoraUpload;
     private long tamanhoKB;
 
+    public Arquivo(String nome, long tamanhoKB) {
+        this.nome = nome;
+        this.tamanhoKB = tamanhoKB;
+    }
+    
+    public Arquivo() {}
+    
    public long getTamanhoKB() {
        return tamanhoKB;
    }
