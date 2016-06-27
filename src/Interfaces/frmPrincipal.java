@@ -1,18 +1,39 @@
 package Interfaces;
 
+import Arquivos.Arquivo;
+import Classes.ListaArquivosModel;
+import Classes.Util;
+import Cliente.ClienteSocket;
+import Enum.ExecutarAcao;
 import Servidor.ServidorSocket;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
+import socketprojeto.SocketProjeto;
 
 public class frmPrincipal extends javax.swing.JFrame {
 
     private ServidorSocket servidorSocket;    
     private Thread servidor;
+    private ListaArquivosModel model;
+    private ListaArquivosModel modelServidor;
+    private Socket socket;
     
     public frmPrincipal() {
         initComponents();
+        listArquivosLocais.setModel(new ListaArquivosModel());
     }
 
     /**
@@ -26,6 +47,31 @@ public class frmPrincipal extends javax.swing.JFrame {
 
         Servidor = new javax.swing.JTabbedPane();
         panelCliente = new javax.swing.JPanel();
+        panelConfigCliente = new javax.swing.JPanel();
+        lblIpServidor = new javax.swing.JLabel();
+        txtIpServidor = new javax.swing.JTextField();
+        lblIpServidor1 = new javax.swing.JLabel();
+        txtPorta = new javax.swing.JTextField();
+        lblUsuario = new javax.swing.JLabel();
+        txtUsuario = new javax.swing.JTextField();
+        lblSenha = new javax.swing.JLabel();
+        txtSenha = new javax.swing.JTextField();
+        btnConectar = new javax.swing.JButton();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jPanel1 = new javax.swing.JPanel();
+        btnSolicitarCaminhoLocal = new javax.swing.JButton();
+        btnListarArquivos = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        listArquivosLocais = new javax.swing.JList<>();
+        txtCaminhoLocal = new javax.swing.JTextField();
+        btnEnviarServidor = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
+        btnSolicitarCaminhoServidor = new javax.swing.JButton();
+        txtCaminhoServidor = new javax.swing.JTextField();
+        btnListarArquivosServidor = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        listArquivosServidor = new javax.swing.JList<>();
+        btnBaixarServidor = new javax.swing.JButton();
         panelServidor = new javax.swing.JPanel();
         panelConfigServidor = new javax.swing.JPanel();
         lblServidorPorta = new javax.swing.JLabel();
@@ -38,15 +84,214 @@ public class frmPrincipal extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        panelConfigCliente.setBorder(javax.swing.BorderFactory.createTitledBorder("Conectar ao servidor"));
+
+        lblIpServidor.setText("IP:");
+
+        lblIpServidor1.setText("Porta:");
+
+        lblUsuario.setText("Usuário:");
+
+        lblSenha.setText("Senha");
+
+        btnConectar.setText("Conectar");
+
+        javax.swing.GroupLayout panelConfigClienteLayout = new javax.swing.GroupLayout(panelConfigCliente);
+        panelConfigCliente.setLayout(panelConfigClienteLayout);
+        panelConfigClienteLayout.setHorizontalGroup(
+            panelConfigClienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelConfigClienteLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelConfigClienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(panelConfigClienteLayout.createSequentialGroup()
+                        .addComponent(lblIpServidor, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtIpServidor, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(panelConfigClienteLayout.createSequentialGroup()
+                        .addComponent(lblUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
+                .addGroup(panelConfigClienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(lblIpServidor1, javax.swing.GroupLayout.DEFAULT_SIZE, 44, Short.MAX_VALUE)
+                    .addComponent(lblSenha, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panelConfigClienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(txtSenha, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelConfigClienteLayout.createSequentialGroup()
+                        .addComponent(txtPorta, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnConectar, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        panelConfigClienteLayout.setVerticalGroup(
+            panelConfigClienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelConfigClienteLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(panelConfigClienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblUsuario)
+                    .addComponent(txtUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblSenha)
+                    .addComponent(txtSenha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(panelConfigClienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblIpServidor)
+                    .addComponent(txtIpServidor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblIpServidor1)
+                    .addComponent(txtPorta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnConectar))
+                .addGap(47, 47, 47))
+        );
+
+        btnSolicitarCaminhoLocal.setText("Solicitar caminho local");
+        btnSolicitarCaminhoLocal.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSolicitarCaminhoLocalActionPerformed(evt);
+            }
+        });
+
+        btnListarArquivos.setText("Listar arquivos local");
+        btnListarArquivos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnListarArquivosActionPerformed(evt);
+            }
+        });
+
+        listArquivosLocais.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        listArquivosLocais.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                listArquivosLocaisValueChanged(evt);
+            }
+        });
+        jScrollPane2.setViewportView(listArquivosLocais);
+
+        txtCaminhoLocal.setEnabled(false);
+
+        btnEnviarServidor.setText("Enviar para Servidor");
+        btnEnviarServidor.setEnabled(false);
+        btnEnviarServidor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEnviarServidorActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(btnListarArquivos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnSolicitarCaminhoLocal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnEnviarServidor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE)
+                    .addComponent(txtCaminhoLocal))
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnSolicitarCaminhoLocal)
+                    .addComponent(txtCaminhoLocal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(btnListarArquivos)
+                        .addGap(31, 31, 31)
+                        .addComponent(btnEnviarServidor)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+
+        jTabbedPane1.addTab("Ações Local", jPanel1);
+
+        btnSolicitarCaminhoServidor.setText("Solicitar caminho servidor");
+        btnSolicitarCaminhoServidor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSolicitarCaminhoServidorActionPerformed(evt);
+            }
+        });
+
+        txtCaminhoServidor.setEnabled(false);
+
+        btnListarArquivosServidor.setText("Listar arquivos servidor");
+        btnListarArquivosServidor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnListarArquivosServidorActionPerformed(evt);
+            }
+        });
+
+        listArquivosServidor.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        listArquivosServidor.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                listArquivosServidorValueChanged(evt);
+            }
+        });
+        jScrollPane3.setViewportView(listArquivosServidor);
+
+        btnBaixarServidor.setText("Baixar para local");
+        btnBaixarServidor.setEnabled(false);
+        btnBaixarServidor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBaixarServidorActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(btnListarArquivosServidor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnSolicitarCaminhoServidor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnBaixarServidor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane3)
+                    .addComponent(txtCaminhoServidor))
+                .addContainerGap())
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnSolicitarCaminhoServidor)
+                    .addComponent(txtCaminhoServidor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(btnListarArquivosServidor)
+                        .addGap(31, 31, 31)
+                        .addComponent(btnBaixarServidor)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+
+        jTabbedPane1.addTab("Ações Servidor", jPanel2);
+
         javax.swing.GroupLayout panelClienteLayout = new javax.swing.GroupLayout(panelCliente);
         panelCliente.setLayout(panelClienteLayout);
         panelClienteLayout.setHorizontalGroup(
             panelClienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 395, Short.MAX_VALUE)
+            .addComponent(panelConfigCliente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jTabbedPane1)
         );
         panelClienteLayout.setVerticalGroup(
             panelClienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 272, Short.MAX_VALUE)
+            .addGroup(panelClienteLayout.createSequentialGroup()
+                .addComponent(panelConfigCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jTabbedPane1))
         );
 
         Servidor.addTab("Cliente", panelCliente);
@@ -78,7 +323,7 @@ public class frmPrincipal extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(lblServidorPorta)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtServidorPorta, javax.swing.GroupLayout.DEFAULT_SIZE, 79, Short.MAX_VALUE)
+                .addComponent(txtServidorPorta, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addComponent(btnServidorIniciar, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
@@ -111,7 +356,7 @@ public class frmPrincipal extends javax.swing.JFrame {
         );
         panelServidorLogLayout.setVerticalGroup(
             panelServidorLogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 156, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout panelServidorLayout = new javax.swing.GroupLayout(panelServidor);
@@ -184,6 +429,108 @@ public class frmPrincipal extends javax.swing.JFrame {
         IniciarPararServidor(false);
     }//GEN-LAST:event_btnServidorPararActionPerformed
 
+    private void btnSolicitarCaminhoLocalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSolicitarCaminhoLocalActionPerformed
+        try {
+            txtCaminhoLocal.setText("");
+            String caminho = Util.GetCaminhoAtual();
+            txtCaminhoLocal.setText(caminho);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(panelCliente, "Erro: " + ex.getMessage());
+        }
+        
+    }//GEN-LAST:event_btnSolicitarCaminhoLocalActionPerformed
+
+    private void btnListarArquivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListarArquivosActionPerformed
+        try {
+            ArrayList<Arquivo> lista = Util.GetListaArquivos();
+            model = new ListaArquivosModel(lista);
+            listArquivosLocais.setModel(model);
+            listArquivosLocais.updateUI();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(panelCliente, "Erro: " + ex.getMessage());
+        }
+    }//GEN-LAST:event_btnListarArquivosActionPerformed
+
+    private void listArquivosLocaisValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_listArquivosLocaisValueChanged
+        if (listArquivosLocais.getSelectedIndex() >= 0) {
+            btnEnviarServidor.setEnabled(true);
+        } else {
+            btnEnviarServidor.setEnabled(false);
+        }
+    }//GEN-LAST:event_listArquivosLocaisValueChanged
+
+    private void btnEnviarServidorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarServidorActionPerformed
+        this.EnviarArquivoServidor();
+    }//GEN-LAST:event_btnEnviarServidorActionPerformed
+
+    private void btnSolicitarCaminhoServidorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSolicitarCaminhoServidorActionPerformed
+       try {
+            txtCaminhoServidor.setText("");
+            this.socket = new Socket("127.0.0.1", 12345);
+            ClienteSocket cliente = new ClienteSocket(this.socket);
+            txtCaminhoServidor.setText(cliente.GetCaminhoServidor());
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(panelCliente, "Erro: " + ex.getMessage());
+        }
+    }//GEN-LAST:event_btnSolicitarCaminhoServidorActionPerformed
+
+    private void btnListarArquivosServidorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListarArquivosServidorActionPerformed
+        try {
+            this.socket = new Socket("127.0.0.1", 12345);
+            ClienteSocket cliente = new ClienteSocket(this.socket);
+            ArrayList<Arquivo> lista = cliente.GetListaArquivos();
+            modelServidor = new ListaArquivosModel(lista);
+            listArquivosServidor.setModel(modelServidor);
+            listArquivosServidor.updateUI();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(panelCliente, "Erro: " + ex.getMessage());
+        }
+    }//GEN-LAST:event_btnListarArquivosServidorActionPerformed
+
+    private void listArquivosServidorValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_listArquivosServidorValueChanged
+        if (listArquivosServidor.getSelectedIndex() >= 0) {
+            btnBaixarServidor.setEnabled(true);
+        } else {
+            btnBaixarServidor.setEnabled(false);
+        }
+    }//GEN-LAST:event_listArquivosServidorValueChanged
+
+    private void btnBaixarServidorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBaixarServidorActionPerformed
+        try {
+            Arquivo arquivo = modelServidor.getElementAt(listArquivosServidor.getSelectedIndex());
+            if (arquivo == null) {
+                return;
+            }
+            this.socket = new Socket("127.0.0.1", 12345);
+            ClienteSocket clienteSocket = new ClienteSocket(this.socket);
+            if (clienteSocket.BaixarArquivoServidor(arquivo)) {
+                JOptionPane.showMessageDialog(null, "Arquivo baixado com sucesso.");
+            } else {
+                JOptionPane.showMessageDialog(null, "Erro ao baixar arquivo.");
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Erro: " + ex.getMessage());
+        }
+    }//GEN-LAST:event_btnBaixarServidorActionPerformed
+    
+    private void EnviarArquivoServidor() {
+        try {
+            Arquivo arquivo = model.getElementAt(listArquivosLocais.getSelectedIndex());
+            if (arquivo == null) {
+                return;
+            }
+            this.socket = new Socket("127.0.0.1", 12345);
+            ClienteSocket clienteSocket = new ClienteSocket(this.socket);
+            if (clienteSocket.EnviarArquivoServidor(arquivo)) {
+                JOptionPane.showMessageDialog(null, "Arquivo enviado com sucesso.");
+            } else {
+                JOptionPane.showMessageDialog(null, "Erro ao enviar arquivo.");
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Erro: " + ex.getMessage());
+        }
+    }
+    
     /**
      * Ativa/Desativa os botões de configuração do servidor.
      * @param iniciar 
@@ -243,15 +590,40 @@ public class frmPrincipal extends javax.swing.JFrame {
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTabbedPane Servidor;
+    private javax.swing.JButton btnBaixarServidor;
+    private javax.swing.JButton btnConectar;
+    private javax.swing.JButton btnEnviarServidor;
+    private javax.swing.JButton btnListarArquivos;
+    private javax.swing.JButton btnListarArquivosServidor;
     private javax.swing.JButton btnServidorIniciar;
     private javax.swing.JButton btnServidorParar;
+    private javax.swing.JButton btnSolicitarCaminhoLocal;
+    private javax.swing.JButton btnSolicitarCaminhoServidor;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JLabel lblIpServidor;
+    private javax.swing.JLabel lblIpServidor1;
+    private javax.swing.JLabel lblSenha;
     private javax.swing.JLabel lblServidorPorta;
+    private javax.swing.JLabel lblUsuario;
+    private javax.swing.JList<String> listArquivosLocais;
+    private javax.swing.JList<String> listArquivosServidor;
     private javax.swing.JPanel panelCliente;
+    private javax.swing.JPanel panelConfigCliente;
     private javax.swing.JPanel panelConfigServidor;
     private javax.swing.JPanel panelServidor;
     private javax.swing.JPanel panelServidorLog;
+    private javax.swing.JTextField txtCaminhoLocal;
+    private javax.swing.JTextField txtCaminhoServidor;
+    private javax.swing.JTextField txtIpServidor;
+    private javax.swing.JTextField txtPorta;
+    private javax.swing.JTextField txtSenha;
     private javax.swing.JTextArea txtServidorLog;
     private javax.swing.JTextField txtServidorPorta;
+    private javax.swing.JTextField txtUsuario;
     // End of variables declaration//GEN-END:variables
 }

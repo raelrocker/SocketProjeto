@@ -51,8 +51,10 @@ public class Util {
         String s = "";
         ArrayList<Arquivo> ListaArquivos = new ArrayList<Arquivo>();
         String[] infoArquivo;
+        String caminho;
         try 
         { 
+            caminho = GetCaminhoAtual();
             Process p=Runtime.getRuntime().exec("cmd /c dir"); 
             p.waitFor(); 
             BufferedReader reader=new BufferedReader(
@@ -65,7 +67,7 @@ public class Util {
                     infoArquivo = line.split(" ");
                     String nomeArquivo = infoArquivo[infoArquivo.length -1];
                     long tamanhoArquivo = Long.parseLong(infoArquivo[infoArquivo.length -2].replace(".", ""));
-                    ListaArquivos.add(new Arquivo(nomeArquivo, tamanhoArquivo));
+                    ListaArquivos.add(new Arquivo(nomeArquivo, tamanhoArquivo, caminho));
                 }
                 //s += line + System.lineSeparator();
             } 

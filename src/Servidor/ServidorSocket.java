@@ -1,7 +1,8 @@
 package Servidor;
 
 import Arquivos.Arquivo;
-import Arquivos.Transferencia;
+import Arquivos.EnviarArquivo;
+import Arquivos.BaixarArquivo;
 import Classes.Util;
 import Enum.ExecutarAcao;
 import Interfaces.frmPrincipal;
@@ -41,6 +42,7 @@ public class ServidorSocket implements Runnable {
         this.porta = porta;
         this.txtServidorLog = txtServidorLog;
         this.pararServidor = false;
+        this.serverSocket = null;
     }
     
     /**
@@ -48,76 +50,72 @@ public class ServidorSocket implements Runnable {
      */
     @Override
     public void run() {
-        ObjectInputStream requisicao = null;
-        ObjectOutputStream resposta;
+        ObjectInputStream in = null;
         ExecutarAcao acao;
         String[] parametros;
         String clienteIP;
-        Transferencia transferencia;
+        BaixarArquivo transferencia;
         
         try {
             this.serverSocket = new ServerSocket(porta);
             this.AdicionarLog("Servidor rodando na porta " + this.porta);
+        } catch (Exception ex) {
+            this.AdicionarLog("Erro: " + ex.getMessage());
+        }
             
-            while (!this.pararServidor) {
+        while (!this.pararServidor) {
+            try {
+                // Aguarda a conexão
+                this.socket = this.serverSocket.accept();
+                // Pega o IP do cliente
+                clienteIP = this.socket.getRemoteSocketAddress().toString();
+
+                in = new ObjectInputStream(this.socket.getInputStream());
+                // Pega a requisição e separa a ação@[parêmetros]
+                parametros = in.readUTF().split("@");
+                acao = ExecutarAcao.porCodigo(Integer.parseInt(parametros[0]));
+                switch (acao) {
+                    case LOGIN:
+                        String[] login = parametros[1].split("_");
+                        this.Login(login[0], login[1]);
+                        this.AdicionarLog("Cliente conectado. IP:" + clienteIP);
+                        break;
+                    case LISTAR_SERVIDOR:
+                        this.GetListaArquivos();
+                        break;
+                    case CAMINHO:
+                        this.GetCaminhoServidor();
+                        break;
+                    case DOWNLOAD:
+                        EnviarArquivo enviarArquivo = new EnviarArquivo(this.socket, true);
+                        enviarArquivo.Enviar(parametros[1]);
+                        break;
+                    case UPLOAD:
+                        transferencia = new BaixarArquivo(this.socket, true);
+                        transferencia.ReceberArquivo();
+                        break;
+                    case LOGOFF:
+                        this.socket.close();
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            } catch (Exception ex) {
+                if (ex.getMessage().length() > 0 && ex.getMessage().contains("closed")) {
+                    this.AdicionarLog("Servidor parado");
+                    break;
+                } else {
+                    this.AdicionarLog("ERRO: " + ex.getMessage());
+                }
+                System.err.println("Err: " + ex.getMessage());
+            } finally {
                 try {
-                    // Aguarda a conexão
-                    this.socket = this.serverSocket.accept();
-                    // Pega o IP do cliente
-                    clienteIP = this.socket.getRemoteSocketAddress().toString();
-                    
-                    requisicao = new ObjectInputStream(this.socket.getInputStream());
-                    // Pega a requisição e separa a ação@[parêmetros]
-                    parametros = requisicao.readUTF().split("@");
-                    acao = ExecutarAcao.porCodigo(Integer.parseInt(parametros[0]));
-                    switch (acao) {
-                        case LOGIN:
-                            String[] login = parametros[1].split("_");
-                            this.Login(login[0], login[1]);
-                            this.AdicionarLog("Cliente conectado. IP:" + clienteIP);
-                            break;
-                        case LISTAR_SERVIDOR:
-                            this.GetListaArquivos();
-                            break;
-                        case CAMINHO:
-                            this.GetCaminhoServidor();
-                            break;
-                        case DOWNLOAD:
-                            break;
-                        case UPLOAD:
-                            transferencia = new Transferencia(this.socket);
-                            transferencia.ReceberArquivo();
-                            break;
-                        case LOGOFF:
-                            this.socket.close();
-                            break;
-                        default:
-                            throw new AssertionError();
-                    }
+                    in.close();
                 } catch (IOException ex) {
-                } finally {
-                    if (requisicao != null) {
-                        requisicao.close();
-                    }
                 }
             }
-            
-            this.AdicionarLog("Cliente desconetado.");
-            
-        } catch (Exception ex) {
-            if (ex.getMessage().contains("closed")) {
-                this.AdicionarLog("Servidor parado");
-            } else {
-                this.AdicionarLog("ERRO: " + ex.getMessage());
-            }
         }
-        finally {
-            try {
-                this.serverSocket.close();
-            } catch (IOException ex) {
-                Logger.getLogger(ServidorSocket.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        this.AdicionarLog("Cliente desconetado."); 
     }
     
     /**
@@ -175,7 +173,6 @@ public class ServidorSocket implements Runnable {
             }
         }
     }    
-    
     
     private void GetCaminhoServidor() throws IOException {
         ObjectOutputStream resposta = null;
