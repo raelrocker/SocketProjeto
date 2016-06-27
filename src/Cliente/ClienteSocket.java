@@ -2,6 +2,7 @@ package Cliente;
 
 import Arquivos.Arquivo;
 import Arquivos.BaixarArquivo;
+import Arquivos.EnviarArquivo;
 import Classes.ListaArquivosModel;
 import Enum.ExecutarAcao;
 import java.io.ObjectInputStream;
@@ -20,8 +21,8 @@ public class ClienteSocket {
     
     public boolean EnviarArquivoServidor(Arquivo arquivo) throws Exception {
         try {
-            BaixarArquivo t = new BaixarArquivo(socket, false);
-            return t.EnviarArquivo(arquivo);
+            EnviarArquivo t = new EnviarArquivo(socket, false);
+            return t.Enviar(arquivo);
         } catch (Exception ex) {
             throw ex;
         } 

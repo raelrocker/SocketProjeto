@@ -32,6 +32,11 @@ public class EnviarArquivo {
         File file;
         Arquivo arquivo;
         try {
+            if (!this.servidor) {            
+                if (!this.Requisitar()) {
+                    return false;
+                }
+            }
             arquivo = this.GetArquivo(nomeArquivo);
             this.EscreverLog("Solicitação de download de arquivo");
             this.EscreverLog("Enviando informações do arquivo");
@@ -45,6 +50,46 @@ public class EnviarArquivo {
                 return false;
             }
             this.EscreverLog("Arquivo enviado com sucesso");
+            return true;
+        } catch (Exception ex) {
+            throw ex;
+        } finally {
+            try {
+                objectOut.close();
+                objectIn.close();
+            } catch (Exception ex) {
+            }
+        }
+    }
+    
+    public boolean Enviar(Arquivo arquivo) throws Exception {
+        File file;
+        try {
+            
+            this.EscreverLog("Solicitação de download de arquivo");
+            if (!this.servidor) {            
+                if (!this.Requisitar()) {
+                    return false;
+                }
+            }
+            this.EscreverLog("Enviando informações do arquivo");
+            if (!this.EnviarInformacoesArquivo(arquivo)) {
+                this.EscreverLog("Erro ao enviar informações do arquivo");
+                return false;
+            }
+            this.EscreverLog("Enviando arquivo ... ");
+            if (!this.EnviarArquivoBytes(arquivo)){
+                this.EscreverLog("Erro ao enviar arquivo");
+                return false;
+            }
+            this.EscreverLog("Arquivo enviado com sucesso");
+            
+            if (!this.servidor) {            
+                if (!this.AguardarResposta()) {
+                    return false;
+                }
+            }
+            
             return true;
         } catch (Exception ex) {
             throw ex;
@@ -145,6 +190,25 @@ public class EnviarArquivo {
     private void EscreverLog(String msg) {
         if (this.servidor)
             SocketProjeto.AdicionarMensagem(msg);
+    }
+    
+    private boolean Requisitar() throws Exception {
+        
+        if (objectOut == null) {
+            objectOut = new ObjectOutputStream(this.socket.getOutputStream());
+        }
+        objectOut.writeUTF("5");
+        objectOut.flush();
+        return true;
+    }
+    
+    private boolean AguardarResposta() throws Exception {
+        
+        if (objectIn == null) {
+            objectIn = new ObjectInputStream(this.socket.getInputStream());
+        }
+        boolean resposta = objectIn.readBoolean();
+        return resposta;
     }
     
 }

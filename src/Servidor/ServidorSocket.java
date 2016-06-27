@@ -91,8 +91,8 @@ public class ServidorSocket implements Runnable {
                         enviarArquivo.Enviar(parametros[1]);
                         break;
                     case UPLOAD:
-                        transferencia = new BaixarArquivo(this.socket, true);
-                        transferencia.ReceberArquivo();
+                        transferencia = new BaixarArquivo(this.socket, true, in);
+                        transferencia.Baixar();
                         break;
                     case LOGOFF:
                         this.socket.close();
