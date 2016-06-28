@@ -84,4 +84,53 @@ public class ClienteSocket {
             this.socket.close();
         }
     }
+    
+    public boolean Login(String usuario, String senha) throws Exception {
+        ObjectOutputStream objectOut = null;
+        ObjectInputStream objectIn = null;
+        boolean resposta;
+        try {
+            // Envia solicitação
+            objectOut = new ObjectOutputStream(this.socket.getOutputStream());
+            objectOut.writeUTF("1@" + usuario + "_" + senha);
+            objectOut.flush();
+            
+            // Recebe resposta
+            objectIn = new ObjectInputStream(this.socket.getInputStream());
+            resposta = objectIn.readBoolean();
+            return resposta;
+            
+        } catch (Exception ex) {
+            throw ex;
+        } finally {
+            objectIn.close();
+            objectOut.close();
+            this.socket.close();
+        }
+    }
+    
+    public boolean Logoff() throws Exception {
+        ObjectOutputStream objectOut = null;
+        ObjectInputStream objectIn = null;
+        boolean resposta;
+        try {
+            // Envia solicitação
+            objectOut = new ObjectOutputStream(this.socket.getOutputStream());
+            objectOut.writeUTF("6");
+            objectOut.flush();
+            
+            // Recebe resposta
+            objectIn = new ObjectInputStream(this.socket.getInputStream());
+            resposta = objectIn.readBoolean();
+            return resposta;
+            
+        } catch (Exception ex) {
+            throw ex;
+        } finally {
+            objectIn.close();
+            objectOut.close();
+            this.socket.close();
+        }
+    }
+    
 }

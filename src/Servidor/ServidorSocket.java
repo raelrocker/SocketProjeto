@@ -81,21 +81,29 @@ public class ServidorSocket implements Runnable {
                         this.AdicionarLog("Cliente conectado. IP:" + clienteIP);
                         break;
                     case LISTAR_SERVIDOR:
-                        this.GetListaArquivos();
+                        if (this.VerificarLogin()) {
+                            this.GetListaArquivos();
+                        }
                         break;
                     case CAMINHO:
-                        this.GetCaminhoServidor();
+                        if (this.VerificarLogin()) {
+                            this.GetCaminhoServidor();
+                        }
                         break;
                     case DOWNLOAD:
-                        EnviarArquivo enviarArquivo = new EnviarArquivo(this.socket, true);
-                        enviarArquivo.Enviar(parametros[1]);
+                        if (this.VerificarLogin()) {
+                            EnviarArquivo enviarArquivo = new EnviarArquivo(this.socket, true);
+                            enviarArquivo.Enviar(parametros[1]);
+                        }
                         break;
                     case UPLOAD:
-                        transferencia = new BaixarArquivo(this.socket, true, in);
-                        transferencia.Baixar();
+                        if (this.VerificarLogin()) {
+                            transferencia = new BaixarArquivo(this.socket, true, in);
+                            transferencia.Baixar();
+                        }
                         break;
                     case LOGOFF:
-                        this.socket.close();
+                        this.Logoff();
                         break;
                     default:
                         throw new AssertionError();
@@ -168,11 +176,32 @@ public class ServidorSocket implements Runnable {
             try {
                 resposta.close();
             } catch (IOException ex) {
-                this.AdicionarLog(msg + "Erro - " + ex.getMessage());
-                throw ex;
             }
         }
-    }    
+    }
+
+    private void Logoff() throws IOException{
+        ObjectOutputStream resposta = null;
+        String msg = "Solicitação de logoff: cliente desconectado ";
+        try {
+            this.clienteLogado = false;
+            this.AdicionarLog(msg);
+            
+            // Responde à requisição
+            resposta = new ObjectOutputStream(this.socket.getOutputStream());
+            resposta.writeBoolean(true);
+            resposta.flush();
+        } catch (IOException ex) {
+            this.AdicionarLog(msg + "Erro - " + ex.getMessage());
+             resposta.writeBoolean(false);
+             resposta.flush();
+        } finally {
+            try {
+                resposta.close();
+            } catch (IOException ex) {
+            }
+        }
+    }
     
     private void GetCaminhoServidor() throws IOException {
         ObjectOutputStream resposta = null;
@@ -206,6 +235,34 @@ public class ServidorSocket implements Runnable {
         } finally {
             resposta.close();
         }        
+    }
+    
+    private boolean VerificarLogin() throws IOException {
+        ObjectOutputStream resposta = null;
+        String msg = "cliente não está logado";
+        
+        if (this.clienteLogado) {
+            return true;
+        }
+        
+        try {
+            this.AdicionarLog(msg);            
+            // Responde à requisição
+            resposta = new ObjectOutputStream(this.socket.getOutputStream());
+            resposta.writeBoolean(false);
+            resposta.flush();
+            return false;
+        } catch (IOException ex) {
+            this.AdicionarLog(msg + "Erro - " + ex.getMessage());
+             resposta.writeBoolean(false);
+             resposta.flush();
+             return false;
+        } finally {
+            try {
+                resposta.close();
+            } catch (IOException ex) {
+            }
+        }
     }
     
 }

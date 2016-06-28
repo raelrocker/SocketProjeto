@@ -15,6 +15,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.logging.Level;
@@ -29,7 +30,12 @@ public class frmPrincipal extends javax.swing.JFrame {
     private Thread servidor;
     private ListaArquivosModel model;
     private ListaArquivosModel modelServidor;
-    private Socket socket;
+    private Socket socket = null;
+    private String usuario = "";
+    private String senha = "";
+    private String IpServidor = "";
+    private int portaServidor = 0;
+    private boolean logado = false;
     
     public frmPrincipal() {
         initComponents();
@@ -95,6 +101,11 @@ public class frmPrincipal extends javax.swing.JFrame {
         lblSenha.setText("Senha");
 
         btnConectar.setText("Conectar");
+        btnConectar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnConectarActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout panelConfigClienteLayout = new javax.swing.GroupLayout(panelConfigCliente);
         panelConfigCliente.setLayout(panelConfigClienteLayout);
@@ -465,8 +476,9 @@ public class frmPrincipal extends javax.swing.JFrame {
 
     private void btnSolicitarCaminhoServidorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSolicitarCaminhoServidorActionPerformed
        try {
+            this.VerificarLogado();
             txtCaminhoServidor.setText("");
-            this.socket = new Socket("127.0.0.1", 12345);
+            this.ConectarSocket();
             ClienteSocket cliente = new ClienteSocket(this.socket);
             txtCaminhoServidor.setText(cliente.GetCaminhoServidor());
         } catch (Exception ex) {
@@ -476,7 +488,8 @@ public class frmPrincipal extends javax.swing.JFrame {
 
     private void btnListarArquivosServidorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListarArquivosServidorActionPerformed
         try {
-            this.socket = new Socket("127.0.0.1", 12345);
+            this.VerificarLogado();
+            this.ConectarSocket();
             ClienteSocket cliente = new ClienteSocket(this.socket);
             ArrayList<Arquivo> lista = cliente.GetListaArquivos();
             modelServidor = new ListaArquivosModel(lista);
@@ -497,11 +510,12 @@ public class frmPrincipal extends javax.swing.JFrame {
 
     private void btnBaixarServidorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBaixarServidorActionPerformed
         try {
+            this.VerificarLogado();
             Arquivo arquivo = modelServidor.getElementAt(listArquivosServidor.getSelectedIndex());
             if (arquivo == null) {
                 return;
             }
-            this.socket = new Socket("127.0.0.1", 12345);
+            this.ConectarSocket();
             ClienteSocket clienteSocket = new ClienteSocket(this.socket);
             if (clienteSocket.BaixarArquivoServidor(arquivo)) {
                 JOptionPane.showMessageDialog(null, "Arquivo baixado com sucesso.");
@@ -512,6 +526,67 @@ public class frmPrincipal extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Erro: " + ex.getMessage());
         }
     }//GEN-LAST:event_btnBaixarServidorActionPerformed
+
+    private void ConectarSocket() throws Exception {
+        if (usuario.isEmpty()      ||
+            senha.isEmpty()        ||
+            IpServidor.isEmpty()   ||
+            portaServidor == 0) {
+            throw new Exception("Informe os dados para conectar ao servidor");
+        }
+        try {
+            this.socket = new Socket(this.IpServidor, this.portaServidor);
+        } catch (UnknownHostException ex) {
+            throw new Exception("Servidor não encontrado");
+        }
+    }
+    
+    private void VerificarLogado() throws Exception {
+        if (!this.logado) {
+            throw  new Exception("É preciso se conectar ao servidor");
+        }
+    }
+    
+    private void btnConectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConectarActionPerformed
+        try {
+            
+            if (this.logado) {
+                this.ConectarSocket();
+                ClienteSocket cliente = new ClienteSocket(this.socket);
+                if (cliente.Logoff()) {
+                    JOptionPane.showMessageDialog(null, "Cliente desconectado no servidor" );
+                    this.logado = false;
+                } else {
+                    JOptionPane.showMessageDialog(null, "Erro ao desconectar no servidor" );
+                }
+                this.usuario = "";
+                this.senha = "";
+                this.IpServidor = "";
+                this.portaServidor = 0;
+                this.socket = null;
+                btnConectar.setText("Conectar");
+            } else {
+                this.usuario = txtUsuario.getText();
+                this.senha = txtSenha.getText();
+                this.IpServidor = txtIpServidor.getText();
+                this.portaServidor = Integer.parseInt(txtPorta.getText());            
+                this.ConectarSocket();
+                ClienteSocket cliente = new ClienteSocket(this.socket);
+                if (cliente.Login(this.usuario, this.senha)) {
+                    JOptionPane.showMessageDialog(null, "Cliente conectado no servidor" );
+                    this.logado = true;
+                } else {
+                    JOptionPane.showMessageDialog(null, "Erro ao conectar no servidor" );
+                }
+                btnConectar.setText("Desconectar");
+            }
+            
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(null, "Erro: a porta do servidor é inválida" );
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Erro: " + ex.getMessage());
+        }
+    }//GEN-LAST:event_btnConectarActionPerformed
     
     private void EnviarArquivoServidor() {
         try {
@@ -519,7 +594,7 @@ public class frmPrincipal extends javax.swing.JFrame {
             if (arquivo == null) {
                 return;
             }
-            this.socket = new Socket("127.0.0.1", 12345);
+            this.ConectarSocket();
             ClienteSocket clienteSocket = new ClienteSocket(this.socket);
             if (clienteSocket.EnviarArquivoServidor(arquivo)) {
                 JOptionPane.showMessageDialog(null, "Arquivo enviado com sucesso.");

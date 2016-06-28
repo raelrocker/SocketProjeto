@@ -66,7 +66,7 @@ public class BaixarArquivo {
             if (!arquivo.VerificarArquivo()) {
                 return false;
             }
-            arquivo.setDiretorioDestino("d:/");
+            arquivo.setDiretorioDestino(Util.GetCaminhoAtual());
             //Salva arquivo na pasta de destino
             if (!arquivo.SalvarArquivo()) {
                 return false;
@@ -90,10 +90,13 @@ public class BaixarArquivo {
         ByteArrayOutputStream byteArrayStream;
         try { 
             
+            this.EscreverLog("Solicitação de upload de arquivo");
+            this.EscreverLog("Recebendi informação do arquivo");
             arquivo = this.ReceberInformacoesArquivo();
             if (arquivo == null) {
                 return false;
             }            
+            this.EscreverLog("Recebendo arquivo ...");
             byteArrayStream = this.ReceberArquivoBytes();
             if (byteArrayStream == null) {
                 return false;
@@ -102,7 +105,7 @@ public class BaixarArquivo {
             if (!arquivo.VerificarArquivo()) {
                 return false;
             }
-            arquivo.setDiretorioDestino("d:/");
+            arquivo.setDiretorioDestino(Util.GetCaminhoAtual());
             //Salva arquivo na pasta de destino
             if (!arquivo.SalvarArquivo()) {
                 return false;
@@ -111,6 +114,7 @@ public class BaixarArquivo {
             if (this.servidor) {
                 this.ResponderRequisicao();
             }
+            this.EscreverLog("Arquivo recebido com sucesso");
             return true;
         } catch (Exception ex) {
             System.err.println("Erro: " + ex.getMessage());
