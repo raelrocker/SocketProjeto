@@ -11,27 +11,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Util {
-    public static Object getObjectFromByte(byte[] objectAsByte) {
-        Object obj = null;
-        ByteArrayInputStream bis = null;
-        ObjectInputStream ois = null;
-        try {
-                 bis = new ByteArrayInputStream(objectAsByte);
-                 ois = new ObjectInputStream(bis);
-                 obj = ois.readObject();
-
-                 bis.close();
-                 ois.close();
-        } catch (IOException e) {
-                 // TODO Auto-generated catch block
-                 e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-                 // TODO Auto-generated catch block
-                 e.printStackTrace();           
-        }
-        return obj;
-    }
     
+    /**
+     * Retorna o caminho atual da aplicação
+     * @return caminho da aplicação
+     * @throws Exception 
+     */
     public static String GetCaminhoAtual() throws Exception {
         String s = "";
         Process p=Runtime.getRuntime().exec("cmd /c cd"); 
@@ -47,11 +32,18 @@ public class Util {
         return s;
     }
     
+    /**
+     * Retorna uma lista contendo os arquivos do diretório atual da aplicação
+     * @return Lista de arquivos
+     * @throws Exception 
+     */
     public static ArrayList<Arquivo> GetListaArquivos() throws Exception {
         String s = "";
         ArrayList<Arquivo> ListaArquivos = new ArrayList<Arquivo>();
         String[] infoArquivo;
         String caminho;
+        String nomeArquivo = "";
+        long tamanhoArquivo = 0;
         try 
         { 
             caminho = GetCaminhoAtual();
@@ -65,8 +57,15 @@ public class Util {
             {
                 if (!line.contains("<DIR>") && getDate(line)) {
                     infoArquivo = line.split(" ");
-                    String nomeArquivo = infoArquivo[infoArquivo.length -1];
-                    long tamanhoArquivo = Long.parseLong(infoArquivo[infoArquivo.length -2].replace(".", ""));
+                    nomeArquivo = infoArquivo[infoArquivo.length -1];
+                    for (int i = infoArquivo.length -2; i >= 0; i--) {
+                        try {
+                            tamanhoArquivo = Long.parseLong(infoArquivo[i].replace(".", ""));
+                            break;
+                        } catch (NumberFormatException ex) {
+                            nomeArquivo = infoArquivo[i] + " " + nomeArquivo;
+                        }
+                    }
                     ListaArquivos.add(new Arquivo(nomeArquivo, tamanhoArquivo, caminho));
                 }
                 //s += line + System.lineSeparator();
@@ -79,6 +78,11 @@ public class Util {
         } 
     }
     
+    /**
+     * Localiza o padão de data numa string
+     * @param linha 
+     * @return 
+     */
     private static boolean getDate(String linha) {
         boolean dataEncontrada = false;
         Matcher m = Pattern.compile("(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\\d\\d").matcher(linha);

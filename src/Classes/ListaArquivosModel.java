@@ -6,8 +6,7 @@ import javax.swing.AbstractListModel;
 import javax.swing.ListModel;
 
 /**
- *
- * @author Rael
+ * Model para JList de arquivos
  */
 public class ListaArquivosModel extends AbstractListModel implements ListModel {
     

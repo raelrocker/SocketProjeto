@@ -1,25 +1,23 @@
 package Arquivos;
 
 import Classes.Util;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import socketprojeto.SocketProjeto;
 
+/**
+ * Classe responsável por enviar um arquivo para uma máquina remota
+ */
 public class EnviarArquivo {
     private Socket socket;
-    private ObjectInputStream objectIn;
-    private ObjectOutputStream objectOut;
-    private int pacotesArquivo = 51200;
-    private boolean servidor;
+    private ObjectInputStream objectIn; // Objeto que recebe mensagens do socket
+    private ObjectOutputStream objectOut; // Objeto que envia mensagens do socket
+    private int pacotesArquivo = 51200; // Tamanho do pacote para transmissão do arquivo
+    private boolean servidor; // Se TRUE, a aplicação está rodando como servidor
 
     public EnviarArquivo(Socket socket, boolean servidor){
         this.socket = socket;
@@ -28,8 +26,13 @@ public class EnviarArquivo {
         this.servidor = servidor;
     }
     
+    /**
+     * Envia um arquivo para uma máquina remota.
+     * @param nomeArquivo
+     * @return TRUE se o arquivo foi enviado com sucesso
+     * @throws Exception 
+     */
     public boolean Enviar(String nomeArquivo) throws Exception {
-        File file;
         Arquivo arquivo;
         try {
             if (!this.servidor) {            
@@ -62,8 +65,13 @@ public class EnviarArquivo {
         }
     }
     
+    /**
+     * Envia um arquivo para uma máquina remota.
+     * @param arquivo
+     * @return TRUE se o arquivo foi enviado com sucesso
+     * @throws Exception 
+     */
     public boolean Enviar(Arquivo arquivo) throws Exception {
-        File file;
         try {
             
             this.EscreverLog("Solicitação de download de arquivo");
@@ -102,6 +110,12 @@ public class EnviarArquivo {
         }
     }
     
+    /**
+     * Retorna as informações do arquivo
+     * @param nomeArquivo caminho/nome do arquivo
+     * @return Arquivo - objeto com as informações do arquivo
+     * @throws Exception 
+     */
     private Arquivo GetArquivo(String nomeArquivo) throws Exception {
         File file;
         Arquivo arquivo;
@@ -118,7 +132,7 @@ public class EnviarArquivo {
             arquivo.setDataHoraUpload(new Date());
             arquivo.setDiretorioDestino("d:/");
             arquivo.setDiretorioAtual(Util.GetCaminhoAtual());
-            arquivo.setTamanhoKB(file.length());
+            arquivo.setTamanho(file.length());
             return arquivo;
             
         } catch (Exception ex) {
@@ -126,6 +140,12 @@ public class EnviarArquivo {
         }
     }
     
+    /**
+     * Envia as informações do arquivo para a máquina remota.
+     * @param arquivo
+     * @return TRUE se as informações foram enviadas com sucesso
+     * @throws Exception 
+     */
     private boolean EnviarInformacoesArquivo(Arquivo arquivo) throws Exception {
         try {
             if (objectOut == null) {
@@ -140,6 +160,12 @@ public class EnviarArquivo {
         }
     }
 
+    /**
+     * Envia o arquivo em pacotes de bytes.
+     * @param arquivo
+     * @return TRUE se o arquivo foi enviado com sucesso
+     * @throws Exception 
+     */
     private boolean EnviarArquivoBytes(Arquivo arquivo) throws Exception {
         File file;
         FileInputStream fileStream;
@@ -154,9 +180,9 @@ public class EnviarArquivo {
         
         //Enviar arquivo
         // Define o tamanho do pacote
-        if (arquivo.getTamanhoKB() < pacotesArquivo) {
-            buffer = new byte[(int)arquivo.getTamanhoKB()];
-            tam = (int)arquivo.getTamanhoKB();
+        if (arquivo.getTamanho() < pacotesArquivo) {
+            buffer = new byte[(int)arquivo.getTamanho()];
+            tam = (int)arquivo.getTamanho();
         } else {
            buffer = new byte[pacotesArquivo];
            tam = pacotesArquivo;
@@ -170,10 +196,10 @@ public class EnviarArquivo {
             this.objectOut.write(buffer, 0, bytesLidos);
             this.objectOut.flush();
             totalEnviado += bytesLidos;
-            System.err.println(totalEnviado + " de " + arquivo.getTamanhoKB());
-            if ((arquivo.getTamanhoKB() - totalEnviado) < pacotesArquivo) {
-                buffer = new byte[(int)arquivo.getTamanhoKB() - totalEnviado];
-                tam = (int)arquivo.getTamanhoKB() - totalEnviado;
+            System.err.println(totalEnviado + " de " + arquivo.getTamanho());
+            if ((arquivo.getTamanho() - totalEnviado) < pacotesArquivo) {
+                buffer = new byte[(int)arquivo.getTamanho() - totalEnviado];
+                tam = (int)arquivo.getTamanho() - totalEnviado;
             }
             if (tam == 0) {
                 break;
@@ -187,11 +213,21 @@ public class EnviarArquivo {
         return true;
     }
     
+    /**
+     * Adiciona log se a aplicação for SERVIDOR
+     * @param msg 
+     */
     private void EscreverLog(String msg) {
         if (this.servidor)
             SocketProjeto.AdicionarMensagem(msg);
     }
     
+    /**
+     * Requisita um arquivo ao cliente/servidor
+     * @param arq
+     * @return TRUE se operação for executada com sucesso
+     * @throws Exception 
+     */
     private boolean Requisitar() throws Exception {
         
         if (objectOut == null) {
@@ -202,6 +238,11 @@ public class EnviarArquivo {
         return true;
     }
     
+    /**
+     * Aguarda a resposta do SERVIDOR
+     * @return
+     * @throws Exception 
+     */
     private boolean AguardarResposta() throws Exception {
         
         if (objectIn == null) {

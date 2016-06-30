@@ -1,37 +1,25 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Arquivos;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
+/**
+ * Classe resposável por armazenar os dados dos arquivos
+ */
 public class Arquivo implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
+    private String nome; // Nome do arquivo com extensão
+    private byte[] conteudo; // arquivo em bytes
+    private String diretorioDestino; // Diretório de destino do arquivo quando transmitido
+    private String diretorioAtual; // Diretório atual do arquivo
+    private Date dataHoraUpload; // Data e hora do upload/download
+    private long tamanho; // tamanho do arquivo em bytes
 
-    private String nome;
-    private byte[] conteudo;
-    private String diretorioDestino;
-    private String diretorioAtual;
-    private Date dataHoraUpload;
-    private long tamanhoKB;
-
-    public Arquivo(String nome, long tamanhoKB, String caminho) {
+    public Arquivo(String nome, long tamanho, String caminho) {
         this.nome = nome;
-        this.tamanhoKB = tamanhoKB;
+        this.tamanho = tamanho;
         this.diretorioAtual = caminho;
     }
     
@@ -45,49 +33,62 @@ public class Arquivo implements Serializable {
         this.diretorioAtual = diretorioAtual;
     }
     
-    
-    
     public String getCaminhoNome() {
         return this.diretorioAtual + "/" + this.getNome();
     }
     
-   public long getTamanhoKB() {
-       return tamanhoKB;
+   public long getTamanho() {
+       return tamanho;
    }
 
-   public void setTamanhoKB(long tamanhoKB) {
-       this.tamanhoKB = tamanhoKB;
+   public void setTamanho(long tamanho) {
+       this.tamanho = tamanho;
    }
 
     public Date getDataHoraUpload() {
               return dataHoraUpload;
     }
+    
     public void setDataHoraUpload(Date dataHoraUpload) {
               this.dataHoraUpload = dataHoraUpload;
     }
+    
     public String getNome() {
               return nome;
     }
+    
     public void setNome(String nome) {
               this.nome = nome;
     }
+    
     public byte[] getConteudo() {
               return conteudo;
     }
+    
     public void setConteudo(byte[] conteudo) {
               this.conteudo = conteudo;
     }
+    
     public String getDiretorioDestino() {
               return diretorioDestino;
     }
+    
     public void setDiretorioDestino(String diretorioDestino) {
               this.diretorioDestino = diretorioDestino;
     }
     
+    /**
+     * Verifica se o tamanho informado corresponde ao tamanho do arquivo em bytes
+     * @return TRUE se o arquivo estiver OK
+     */
     public boolean VerificarArquivo() {
-        return this.tamanhoKB == this.conteudo.length;
+        return this.tamanho == this.conteudo.length;
     }
     
+    /**
+     * Salva o arquivo no diretório de destino informado
+     * @return TRUE se o arquivo for salvo com sucesso
+     */
     public boolean SalvarArquivo() {
         FileOutputStream fos = null;
         int bytesEscritos = 0;
@@ -117,14 +118,5 @@ public class Arquivo implements Serializable {
     
     public String toString() {
         return this.getNome();
-    }
-    
-    public byte[] SerializarArquivo() throws Exception {
-
-        ByteArrayOutputStream bao = new ByteArrayOutputStream();
-        ObjectOutputStream ous;
-        ous = new ObjectOutputStream(bao);
-        ous.writeObject(this);
-        return bao.toByteArray();
     }
 }

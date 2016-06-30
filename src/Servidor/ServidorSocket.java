@@ -5,20 +5,12 @@ import Arquivos.EnviarArquivo;
 import Arquivos.BaixarArquivo;
 import Classes.Util;
 import Enum.ExecutarAcao;
-import Interfaces.frmPrincipal;
-import com.sun.corba.se.impl.ior.ByteBuffer;
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
 /**
@@ -144,7 +136,7 @@ public class ServidorSocket implements Runnable {
     }
     
     /**
-     * Verifica se login
+     * Verifica o login
      * @param usuario
      * @param senha
      * @return 
@@ -180,6 +172,10 @@ public class ServidorSocket implements Runnable {
         }
     }
 
+    /**
+     * Executa o logoff
+     * @throws IOException 
+     */
     private void Logoff() throws IOException{
         ObjectOutputStream resposta = null;
         String msg = "Solicitação de logoff: cliente desconectado ";
@@ -203,6 +199,10 @@ public class ServidorSocket implements Runnable {
         }
     }
     
+    /**
+     * Retorna o caminho do SERVIDOR para o CLIENTE
+     * @throws IOException 
+     */
     private void GetCaminhoServidor() throws IOException {
         ObjectOutputStream resposta = null;
         try {
@@ -219,6 +219,10 @@ public class ServidorSocket implements Runnable {
         }        
     }
     
+    /**
+     * Retorna a lista de arquivos do SERVIDOR para o CLIENTE
+     * @throws IOException 
+     */
     private void GetListaArquivos() throws IOException {
         ObjectOutputStream resposta = null;
         try {
@@ -237,6 +241,11 @@ public class ServidorSocket implements Runnable {
         }        
     }
     
+    /**
+     * Verifica se o CLIENTE está logado
+     * @return
+     * @throws IOException 
+     */
     private boolean VerificarLogin() throws IOException {
         ObjectOutputStream resposta = null;
         String msg = "cliente não está logado";

@@ -3,14 +3,14 @@ package Cliente;
 import Arquivos.Arquivo;
 import Arquivos.BaixarArquivo;
 import Arquivos.EnviarArquivo;
-import Classes.ListaArquivosModel;
-import Enum.ExecutarAcao;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
-import javax.swing.JOptionPane;
 
+/**
+ * Classe responsável pelas requisições do CLIENTE
+ */
 public class ClienteSocket {
 
     private Socket socket;
@@ -19,6 +19,12 @@ public class ClienteSocket {
         this.socket = socket;
     }
     
+    /**
+     * Envia um arquivo para o SERVIDOR
+     * @param arquivo
+     * @return
+     * @throws Exception 
+     */
     public boolean EnviarArquivoServidor(Arquivo arquivo) throws Exception {
         try {
             EnviarArquivo t = new EnviarArquivo(socket, false);
@@ -28,6 +34,12 @@ public class ClienteSocket {
         } 
     }
     
+    /**
+     * Baixa um arquivo do servidor
+     * @param arquivo
+     * @return
+     * @throws Exception 
+     */
     public boolean BaixarArquivoServidor(Arquivo arquivo) throws Exception {
         try {
             BaixarArquivo t = new BaixarArquivo(socket, false);
@@ -37,6 +49,11 @@ public class ClienteSocket {
         } 
     }
     
+    /**
+     * Requisita o caminho do SERVIDOR
+     * @return
+     * @throws Exception 
+     */
     public String GetCaminhoServidor() throws Exception {
         ObjectOutputStream objectOut = null;
         ObjectInputStream objectIn = null;
@@ -61,6 +78,11 @@ public class ClienteSocket {
         }
     }
     
+    /**
+     * Lista os arquivos do SERVIDOR
+     * @return
+     * @throws Exception 
+     */
     public ArrayList<Arquivo> GetListaArquivos() throws Exception {
         ObjectOutputStream objectOut = null;
         ObjectInputStream objectIn = null;
@@ -85,6 +107,13 @@ public class ClienteSocket {
         }
     }
     
+    /**
+     * Efetua o login no SERVIDOR
+     * @param usuario
+     * @param senha
+     * @return
+     * @throws Exception 
+     */
     public boolean Login(String usuario, String senha) throws Exception {
         ObjectOutputStream objectOut = null;
         ObjectInputStream objectIn = null;
@@ -109,6 +138,11 @@ public class ClienteSocket {
         }
     }
     
+    /**
+     * Desloga do SERVIDOR
+     * @return
+     * @throws Exception 
+     */
     public boolean Logoff() throws Exception {
         ObjectOutputStream objectOut = null;
         ObjectInputStream objectIn = null;
